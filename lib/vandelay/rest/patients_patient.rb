@@ -19,14 +19,21 @@ module Vandelay
           patient_id = params[:id]
           patient = Vandelay::REST::PatientsPatient.patients_srvc.retrieve_one(patient_id)
           if patient.nil?
-            json({ "error_message": "patient not available with id #{patient_id}" })
+            json({
+              "patient": nil,
+              "message": "patient not available with id #{patient_id}!"
+            })
           else
-            json({ "patient": patient })
+            json({ 
+              "patient": patient,
+              "message": 'success'
+            })
           end
         end
 
         app.get '/patients/:id/record' do
-          puts "--- params #{params[:id]}"
+          # puts "--- params #{params[:id]}"
+
           # Fetch the patient first
           patient_id = params[:id]
           patient = Vandelay::REST::PatientsPatient.patients_srvc.retrieve_one(patient_id)
@@ -34,16 +41,25 @@ module Vandelay
 
           if patient.nil?
             # Return patient not available message to client
-            json({ "error_message": "patient with id #{patient_id} is not available!" })
+            json({
+              "records": nil,
+              "message": "patient with id #{patient_id} is not available!"
+            })
           elsif patient.records_vendor.nil?
             # Return vendor spec not available message to client
-            json({ "error_message": "vendor records data is missing for this patient!" })
+            json({
+              "records": nil,
+              "message": "vendor records data is missing for this patient!"
+            })
           else
             # Fetch the patient records from the vendor and return to client
             records = Vandelay::REST::PatientsPatient.
                         patients_records_srvc.
                         retrieve_record_for_patient(patient)
-            json({ "records": records })
+            json({
+              "records": records,
+              "message": "success"
+            })
           end
         end
       end
